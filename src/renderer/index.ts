@@ -28,7 +28,7 @@ const SettingsPlugin = Vencord.Plugins.plugins
 
 SettingsPlugin.customEntries.push({
     key: "vesktop",
-    title: "Vesktop",
+    title: "Rubidium",
     panelTitle: "Vesktop Settings",
     Component: SettingsUi,
     Icon: VesktopSettingsIcon

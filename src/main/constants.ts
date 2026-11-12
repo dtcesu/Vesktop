@@ -16,7 +16,7 @@ const vesktopDir = dirname(process.execPath);
 export const PORTABLE =
     process.platform === "win32" &&
     !process.execPath.toLowerCase().endsWith("electron.exe") &&
-    !existsSync(join(vesktopDir, "Uninstall Vesktop.exe"));
+    !existsSync(join(vesktopDir, "Uninstall Rubidium.exe"));
 
 export const DATA_DIR =
     process.env.VENCORD_USER_DATA_DIR || (PORTABLE ? join(vesktopDir, "Data") : join(app.getPath("userData")));
@@ -53,7 +53,9 @@ export const MIN_HEIGHT = 500;
 export const DEFAULT_WIDTH = 1280;
 export const DEFAULT_HEIGHT = 720;
 
-export const DISCORD_HOSTNAMES = ["discord.com", "canary.discord.com", "ptb.discord.com"];
+export const RUBIDIUM_HOST = "rubidium.fyi";
+export const DISCORD_HOSTNAMES = [RUBIDIUM_HOST];
+export const DEEP_LINK_SCHEME = "rubidium";
 
 const VersionString = `AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${process.versions.chrome.split(".")[0]}.0.0.0 Safari/537.36`;
 const BrowserUserAgents = {

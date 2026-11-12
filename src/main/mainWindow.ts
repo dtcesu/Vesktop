@@ -26,7 +26,16 @@ import type { SettingsStore } from "shared/utils/SettingsStore";
 
 import { createAboutWindow } from "./about";
 import { CommandLine } from "./cli";
-import { BrowserUserAgent, DEFAULT_HEIGHT, DEFAULT_WIDTH, MessageBoxChoice, MIN_HEIGHT, MIN_WIDTH } from "./constants";
+import {
+    BrowserUserAgent,
+    DEEP_LINK_SCHEME,
+    DEFAULT_HEIGHT,
+    DEFAULT_WIDTH,
+    MessageBoxChoice,
+    MIN_HEIGHT,
+    MIN_WIDTH,
+    RUBIDIUM_HOST
+} from "./constants";
 import { AppEvents } from "./events";
 import { sendRendererCommand } from "./ipcCommands";
 import { darwinURL } from "./main";
@@ -81,7 +90,7 @@ function initMenuBar(win: BrowserWindow) {
 
     const subMenu = [
         {
-            label: "About Vesktop",
+            label: "About Rubidium",
             click: createAboutWindow
         },
         {
@@ -90,14 +99,14 @@ function initMenuBar(win: BrowserWindow) {
                 await downloadVencordFiles();
                 relaunch();
             },
-            toolTip: "Vesktop will automatically restart after this operation"
+            toolTip: "Rubidium will automatically restart after this operation"
         },
         {
-            label: "Reset Vesktop",
+            label: "Reset Rubidium",
             async click() {
                 await clearData(win);
             },
-            toolTip: "Vesktop will automatically restart after this operation"
+            toolTip: "Rubidium will automatically restart after this operation"
         },
         {
             label: "Relaunch",
@@ -180,7 +189,7 @@ function initMenuBar(win: BrowserWindow) {
 
     const menuItems = [
         {
-            label: "Vesktop",
+            label: "Rubidium",
             role: "appMenu",
             submenu: subMenu.filter(isTruthy)
         },
@@ -290,7 +299,7 @@ function initStaticTitle(win: BrowserWindow) {
 
     addSettingsListener("staticTitle", enabled => {
         if (enabled) {
-            win.setTitle("Vesktop");
+            win.setTitle("Rubidium");
             win.on("page-title-updated", listener);
         } else {
             win.off("page-title-updated", listener);
@@ -395,7 +404,7 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
     }
 
     if (staticTitle) {
-        options.title = "Vesktop";
+        options.title = "Rubidium";
     }
 
     if (process.platform === "darwin") {
@@ -454,7 +463,7 @@ function createMainWindow() {
 
     // if the open-url event is fired (in index.ts) while starting up, darwinURL will be set. If not fall back to checking the process args (which Windows and Linux use for URI calling.)
     // win.webContents.session.clearCache().then(() => {
-    loadUrl(darwinURL || process.argv.find(arg => arg.startsWith("discord://")));
+    loadUrl(darwinURL || process.argv.find(arg => arg.startsWith(`${DEEP_LINK_SCHEME}://`)));
     // });
 
     return win;
@@ -462,7 +471,7 @@ function createMainWindow() {
 
 const runVencordMain = once(() => require(join(VENCORD_FILES_DIR, "vencordDesktopMain.js")));
 
-// discord://-/channels/@me -> /channels/@me
+// rubidium://-/channels/@me -> /channels/@me
 function getDeepLinkPath(uri: string | undefined) {
     if (!uri || !URL.canParse(uri)) return;
 
@@ -470,13 +479,11 @@ function getDeepLinkPath(uri: string | undefined) {
 }
 
 export function loadUrl(uri: string | undefined) {
-    const branch = Settings.store.discordBranch;
-    const subdomain = branch === "canary" || branch === "ptb" ? `${branch}.` : "";
     const path = getDeepLinkPath(uri)?.slice(1) || "app";
 
     // we do not rely on 'did-finish-load' because it fires even if loadURL fails which triggers early detruction of the splash
     mainWin
-        .loadURL(`https://${subdomain}discord.com/${path}`)
+        .loadURL(`https://${RUBIDIUM_HOST}/${path}`)
         .then(() => AppEvents.emit("appLoaded"))
         .catch(error => retryUrl(error.url, error.code));
 }
@@ -499,8 +506,8 @@ function retryUrl(url: string, description: string) {
 async function showStartupError(error: unknown) {
     const { response } = await dialog.showMessageBox({
         type: "error",
-        message: "Vesktop failed to start",
-        detail: `${error}\n\nRepair will re-download Vencord and restart Vesktop.`,
+        message: "Rubidium failed to start",
+        detail: `${error}\n\nRepair will re-download Vencord and restart Rubidium.`,
         buttons: ["Repair", "Quit"],
         defaultId: MessageBoxChoice.Default,
         cancelId: MessageBoxChoice.Cancel

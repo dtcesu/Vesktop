@@ -37,10 +37,15 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.fullChangelog = true;
 
-const isOutdated = autoUpdater.checkForUpdates().then(res => Boolean(res?.isUpdateAvailable));
+const updatesEnabled = false;
+
+const isOutdated = updatesEnabled
+    ? autoUpdater.checkForUpdates().then(res => Boolean(res?.isUpdateAvailable))
+    : Promise.resolve(false);
 
 handle(IpcEvents.UPDATER_IS_OUTDATED, () => isOutdated);
 handle(IpcEvents.UPDATER_OPEN, async () => {
+    if (!updatesEnabled) return;
     const res = await autoUpdater.checkForUpdates();
     if (res?.isUpdateAvailable && res.updateInfo) openUpdater(res.updateInfo);
 });
@@ -52,7 +57,7 @@ function openUpdater(update: UpdateInfo) {
     }
 
     updaterWindow = new BrowserWindow({
-        title: "Vesktop Updater",
+        title: "Rubidium Updater",
         autoHideMenuBar: true,
         webPreferences: {
             preload: join(__dirname, "updaterPreload.js")

@@ -12,7 +12,7 @@ import "./userAssets";
 import "./vesktopProtocol";
 import { app, BrowserWindow, nativeTheme } from "electron";
 
-import { DATA_DIR } from "./constants";
+import { DATA_DIR, DEEP_LINK_SCHEME } from "./constants";
 import { createFirstLaunchTour } from "./firstLaunch";
 import { createWindows, mainWin, openDeepLink } from "./mainWindow";
 import { registerMediaPermissionsHandler } from "./mediaPermissions";
@@ -32,7 +32,7 @@ const isLinux = process.platform === "linux";
 export let enableHardwareAcceleration = true;
 
 function init() {
-    setAsDefaultProtocolClient("discord");
+    setAsDefaultProtocolClient(DEEP_LINK_SCHEME);
 
     const { disableSmoothScroll, hardwareAcceleration, hardwareVideoAcceleration, hardwareVideoEncoding } =
         Settings.store;
@@ -100,14 +100,14 @@ function init() {
         if (data?.IS_DEV) return app.quit();
         if (!mainWin) return;
 
-        const deepLink = cmdLine.find(arg => arg.startsWith("discord://"));
+        const deepLink = cmdLine.find(arg => arg.startsWith(`${DEEP_LINK_SCHEME}://`));
         if (deepLink) openDeepLink(deepLink);
 
         showWindow(mainWin);
     });
 
     app.whenReady().then(async () => {
-        if (process.platform === "win32") app.setAppUserModelId("dev.vencord.vesktop");
+        if (process.platform === "win32") app.setAppUserModelId("fyi.rubidium.desktop");
 
         registerScreenShareHandler();
         registerMediaPermissionsHandler();
