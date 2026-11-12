@@ -1,6 +1,5 @@
 name: Build (unsigned, Linux + macOS)
 
-
 on:
     workflow_dispatch:
 
